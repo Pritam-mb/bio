@@ -1,0 +1,49 @@
+.circular-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.circular-text-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: circular-text-spin 20s linear infinite;
+  transform-origin: 50% 50%;
+  animation-play-state: running;
+}
+
+.circular-text.slow-on-hover .circular-text-svg:hover {
+  animation-duration: 120s;
+}
+
+.circular-text.pause-on-hover .circular-text-svg:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circular-text-svg {
+    animation: none;
+  }
+}
+
+@keyframes circular-text-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.circular-text-content {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  fill: var(--text-muted);
+  text-transform: uppercase;
+}

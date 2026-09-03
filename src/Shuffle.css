@@ -1,0 +1,26 @@
+.shuffle-container {
+  display: inline-block;
+  width: 100%;
+}
+
+.shuffle-text {
+  display: inline-block;
+  font-family: 'Syne', var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fdfdff 15%, #cfd3dc 55%, #8a919e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.shuffle-word {
+  display: inline-block;
+  white-space: pre;
+}
+
+.shuffle-letter {
+  display: inline-block;
+  will-change: contents;
+}
