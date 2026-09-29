@@ -1,5 +1,9 @@
 .logoloop {
   position: relative;
+  /* The track is width:max-content (several viewport widths wide) so it can
+     slide. Without this clip the logos bleed across the whole screen instead
+     of staying inside the section — very visible on narrow phones. */
+  overflow: hidden;
 
   --logoloop-gap: 32px;
   --logoloop-logoHeight: 28px;

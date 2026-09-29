@@ -38,6 +38,12 @@ export default function Lanyard({
   lanyardWidth = 1
 }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const wrapRef = useRef(null);
+  // The canvas runs WebGL + physics every frame even when this bottom-of-page
+  // section is miles offscreen, dragging down scroll smoothness everywhere
+  // else. Unmount it when far away; a wide margin remounts it before it
+  // scrolls into view. (GLTF/textures stay cached, so remounts are instant.)
+  const [nearView, setNearView] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -45,8 +51,23 @@ export default function Lanyard({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    if (!('IntersectionObserver' in window)) {
+      setNearView(true);
+      return;
+    }
+    const io = new IntersectionObserver(([entry]) => setNearView(entry.isIntersecting), {
+      rootMargin: '500px 0px'
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="lanyard-wrapper">
+    <div className="lanyard-wrapper" ref={wrapRef}>
+      {nearView ? (
       <Canvas
         camera={{ position: position, fov: fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
@@ -95,6 +116,9 @@ export default function Lanyard({
           />
         </Environment>
       </Canvas>
+      ) : (
+        <div style={{ width: '100%', height: '100%' }} aria-hidden="true" />
+      )}
     </div>
   );
 }

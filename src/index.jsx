@@ -24,6 +24,10 @@ document.body.insertBefore(driftWallContainer, document.body.firstChild);
 
 const driftRoot = ReactDOM.createRoot(driftWallContainer);
 
+// Phones can't afford the full-size wall: fewer columns + smaller tiles means
+// far fewer offscreen images to fetch and far less per-frame transform work.
+const compactDrift = window.matchMedia('(max-width: 768px)').matches;
+
 // Moody, galactic images for the drifting background wall
 const items = [
   { image: 'https://picsum.photos/id/1062/600/400', title: 'Nebula', href: 'https://github.com/pritam-mb' },
@@ -40,15 +44,15 @@ driftRoot.render(
   <React.StrictMode>
     <DriftWall
       items={items}
-      columns={5}
-      tileWidth={200}
-      tileHeight={132}
-      gap={18}
+      columns={compactDrift ? 3 : 5}
+      tileWidth={compactDrift ? 150 : 200}
+      tileHeight={compactDrift ? 100 : 132}
+      gap={compactDrift ? 12 : 18}
       tilt={16}
       turn={-14}
       perspective={1200}
       depth={120}
-      speed={36}
+      speed={compactDrift ? 26 : 36}
       direction="up"
       variance={0.45}
       parallax={0.6}

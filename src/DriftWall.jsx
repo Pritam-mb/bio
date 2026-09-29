@@ -110,10 +110,13 @@ const DriftWall = ({
     (px, py) => {
       const plane = planeRef.current;
       if (!plane) return;
-      plane.style.transform =
+      // Writing this every frame forces a style recalc for a value that only
+      // ever changes when the pointer moves — and never moves on touch.
+      const next =
         `translate(-50%, -50%) scale(1.18) ` +
         `rotateX(${tilt + py}deg) rotateY(${turn + px}deg) rotateZ(${roll}deg) ` +
         `translateZ(${-depth}px)`;
+      if (plane.style.transform !== next) plane.style.transform = next;
     },
     [tilt, turn, roll, depth]
   );
