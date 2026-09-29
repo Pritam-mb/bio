@@ -1,15 +1,44 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import Lenis from 'lenis';
 import DriftWall from './DriftWall';
 import Shuffle from './Shuffle';
 import CircularText from './CircularText';
 import LogoLoop from './LogoLoop';
-import Lanyard from './Lanyard';
 import './DriftWall.css';
-import './Lanyard.css';
 import './Shuffle.css';
 import './CircularText.css';
 import './LogoLoop.css';
+
+// Buttery inertial scrolling (Lenis). Desktop pointers only — touch devices
+// keep native momentum scrolling and reduced-motion users opt out entirely.
+// Anchor navigation elsewhere on the page routes through `window.__lenis`
+// when it exists, otherwise falls back to native smooth scrolling.
+const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (finePointer && !prefersReduced) {
+  const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+  window.__lenis = lenis;
+
+  // Drive Lenis from GSAP's ticker when the CDN is present so ScrollTrigger
+  // stays in sync; otherwise run a private rAF loop after page load.
+  let wired = false;
+  const wireGsap = () => {
+    if (wired || !window.gsap) return;
+    wired = true;
+    if (window.ScrollTrigger) lenis.on('scroll', window.ScrollTrigger.update);
+    window.gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    window.gsap.ticker.lagSmoothing(0);
+  };
+  wireGsap();
+  window.addEventListener('load', () => {
+    wireGsap();
+    if (!wired) {
+      const loop = (time) => { lenis.raf(time); requestAnimationFrame(loop); };
+      requestAnimationFrame(loop);
+    }
+  });
+}
 
 // 1. Create DriftWall Root dynamically and prepend to body to fix layout shifting
 const driftWallContainer = document.createElement('div');
@@ -132,18 +161,7 @@ if (logoLoopRootEl) {
   );
 }
 
-// 4. Render Lanyard 3D scene into the #lanyard-root section
-const lanyardRootEl = document.getElementById('lanyard-root');
-if (lanyardRootEl) {
-  const lanyardRoot = ReactDOM.createRoot(lanyardRootEl);
-  lanyardRoot.render(
-    <React.StrictMode>
-      <Lanyard position={[0, 0, 30]} gravity={[0, -40, 0]} fov={20} />
-    </React.StrictMode>
-  );
-}
-
-// 5. Remove the old #root div that was causing layout shifting at the bottom
+// 4. Remove the old #root div that was causing layout shifting at the bottom
 const oldRoot = document.getElementById('root');
 if (oldRoot) {
   oldRoot.remove();

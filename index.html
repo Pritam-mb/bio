@@ -36,6 +36,9 @@
   --blur:18px;
 }
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* Lenis smooth-scroll: let the library own the wheel, never fight it with CSS */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
 body{background:#050506}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
 body{
@@ -425,55 +428,21 @@ section{position:relative;z-index:1;padding:110px 0}
 }
 .filter-btn:hover{border-color:var(--border-hover);color:var(--text)}
 .filter-btn.active{background:var(--violet);border-color:var(--violet);color:#fff}
-.project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:pc}
+/* App-window card: traffic-dot bar on top, full-bleed screenshot viewport,
+   body inset below. Opaque surface (no backdrop blur) keeps 6+ cards cheap
+   to scroll. */
 .project-card{
   background:
-    radial-gradient(140% 100% at 12% 0%, rgba(214,218,226,.07), transparent 55%),
-    repeating-linear-gradient(115deg, transparent 0 6px, rgba(255,255,255,.012) 6px 7px),
-    linear-gradient(155deg, rgba(28,32,40,.92), rgba(10,12,16,.96) 60%, rgba(22,26,34,.94));
-  border:1px solid var(--border);border-radius:18px;
-  padding:22px 22px 64px;display:flex;flex-direction:column;position:relative;overflow:hidden;
+    linear-gradient(180deg,rgba(255,255,255,.035),transparent 26%),
+    var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:0;display:flex;flex-direction:column;position:relative;overflow:hidden;
   font-variant-numeric:tabular-nums;
-  transition:transform .45s cubic-bezier(.22,.61,.36,.55),border-color .25s ease,box-shadow .45s ease;
+  transition:transform .4s cubic-bezier(.22,.61,.36,.55),border-color .25s ease,box-shadow .4s ease;
 }
-/* EMV contactless chip (bottom-left, ATM/card look) */
-.pc-chip{
-  position:absolute;bottom:16px;left:18px;width:44px;height:32px;border-radius:7px;
-  background:
-    linear-gradient(90deg, transparent 0 11%, rgba(214,218,226,.26) 11% 15%, transparent 15% 85%, rgba(214,218,226,.26) 85% 89%, transparent 89%),
-    linear-gradient(0deg,  transparent 0 11%, rgba(214,218,226,.26) 11% 15%, transparent 15% 85%, rgba(214,218,226,.26) 85% 89%, transparent 89%),
-    linear-gradient(160deg,#3a3f4a,#171a20);
-  border:1px solid #2a2e38;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(214,218,226,.08), 0 8px 18px rgba(0,0,0,.5);
-  z-index:2;pointer-events:none;
-}
-/* barcode strip (bottom-right, ATM/card look) */
-.pc-barcode{
-  position:absolute;bottom:20px;right:18px;height:30px;padding:0 7px;z-index:2;pointer-events:none;
-  display:flex;align-items:center;overflow:hidden;border-radius:4px;
-  border:1px solid rgba(214,218,226,.12);
-  background:repeating-linear-gradient(90deg,
-    rgba(214,218,226,.62) 0 2px, transparent 2px 4px,
-    rgba(214,218,226,.62) 4px 7px, transparent 7px 9px,
-    rgba(214,218,226,.34) 9px 11px, transparent 11px 13px,
-    rgba(214,218,226,.7) 13px 15px, transparent 15px 17px,
-    rgba(214,218,226,.62) 17px 19px, transparent 19px 22px,
-    rgba(214,218,226,.4) 22px 24px, transparent 24px 26px,
-    rgba(214,218,226,.66) 26px 29px, transparent 29px 31px);
-  opacity:.8;
-}
-.pc-barcode::after{
-  content:"";position:absolute;left:7px;right:7px;bottom:3px;height:6px;
-  background:repeating-linear-gradient(90deg, rgba(214,218,226,.7) 0 3px, transparent 3px 7px, rgba(214,218,226,.5) 7px 9px, transparent 9px 12px);
-  opacity:.65;
-}
-.project-card::after{ /* diagonal sheen band, static card texture */
-  content:"";position:absolute;top:-30%;right:-10%;width:70%;height:160%;
-  background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.045) 50%,transparent 58%);
-  transform:rotate(8deg);pointer-events:none;
-}
-.project-card:hover{transform:translateY(-10px) rotateX(5deg) translateZ(8px);border-color:#4b515b;box-shadow:0 30px 60px rgba(0,0,0,.55),0 0 0 1px var(--violet-soft),0 0 40px rgba(150,158,172,.12)}
-/* raised card-metal glare sweep on hover */
+.project-card:hover{transform:translateY(-8px);border-color:var(--border-hover);box-shadow:0 24px 55px rgba(0,0,0,.5),0 0 0 1px var(--violet-soft),0 0 36px rgba(150,158,172,.1)}
+/* raised card glare sweep on hover */
 .project-card::before{
   content:"";position:absolute;top:0;left:-120%;width:55%;height:100%;
   background:linear-gradient(100deg,transparent,rgba(255,255,255,.08),transparent);
@@ -490,18 +459,40 @@ section{position:relative;z-index:1;padding:110px 0}
   display:inline-flex;align-items:center;gap:8px;
 }
 .see-all-btn:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-soft);transform:translateY(-2px)}
-.pc-thumb-wrap{overflow:hidden;border-radius:8px;margin-bottom:16px;border:1px solid var(--border)}
+.pc-thumb-wrap{overflow:hidden;margin:0 0 18px;border-bottom:1px solid var(--border)}
 .pc-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:top;display:block;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
-.project-card:hover .pc-thumb{transform:scale(1.08)}
-.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;z-index:2;position:relative}
-.pc-lang{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--border);padding:4px 10px;border-radius:20px;background:rgba(11,12,15,.5)}
+.project-card:hover .pc-thumb{transform:scale(1.06)}
+/* window chrome bar: traffic dots left, stack pill, status pinned right.
+   order:-1 pulls it above the screenshot in every card. */
+.pc-top{
+  order:-1;display:flex;align-items:center;gap:10px;position:relative;z-index:2;
+  margin:0;padding:11px 14px;background:var(--surface-2);border-bottom:1px solid var(--border);
+}
+.pc-top::before{
+  content:"";flex:0 0 auto;width:36px;height:10px;background-repeat:no-repeat;
+  background-image:
+    radial-gradient(circle at 5px 5px, #5a5f68 4.5px, transparent 5px),
+    radial-gradient(circle at 18px 5px, #6a6f78 4.5px, transparent 5px),
+    radial-gradient(circle at 31px 5px, #7a808a 4.5px, transparent 5px);
+}
+.pc-top + .pc-title{margin-top:18px}
+.pc-lang{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--border);padding:3px 10px;border-radius:20px;background:rgba(11,12,15,.5)}
 .lang-dot{width:8px;height:8px;border-radius:50%}
-.pc-status{font-family:var(--font-mono);font-size:10px;padding:3px 10px;border-radius:20px;letter-spacing:.05em;text-transform:uppercase}
+.pc-status{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-family:var(--font-mono);font-size:10px;padding:3px 10px;border-radius:20px;letter-spacing:.05em;text-transform:uppercase}
+.pc-status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.status-live::before{animation:blink 2s ease-in-out infinite}
 .status-live{background:var(--cyan-soft);color:var(--cyan);border:1px solid rgba(170,178,191,.25)}
 .status-oss{background:var(--violet-soft);color:var(--violet);border:1px solid rgba(214,218,226,.22)}
 .status-wip{background:var(--amber-soft);color:var(--amber);border:1px solid rgba(188,195,206,.22)}
-.pc-title{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;margin-bottom:10px;line-height:1.2;background:linear-gradient(120deg,#f5f6f8,#cfd3dc 65%,#8a919e);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
-.pc-title::first-line{letter-spacing:.02em}
+/* body copy sits inset below the bar / viewport */
+.pc-title,.pc-desc,.pc-tags,.pc-stack{margin-left:20px;margin-right:20px}
+.pc-title{font-family:var(--font-display);font-weight:700;font-size:20px;margin-bottom:10px;line-height:1.25;letter-spacing:-.01em;color:var(--text)}
+/* auto-numbered "PROJECT 01…" kicker above each title */
+.pc-title::before{
+  counter-increment:pc;content:"PROJECT 0" counter(pc);
+  display:block;font-family:var(--font-mono);font-weight:400;font-size:10.5px;
+  letter-spacing:.14em;color:var(--text-faint);margin-bottom:7px;
+}
 .pc-desc{color:var(--text-muted);font-size:13.5px;margin-bottom:18px;flex:1}
 .pc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
 .pc-stack{display:flex;align-items:center;margin-bottom:18px}
@@ -523,9 +514,16 @@ section{position:relative;z-index:1;padding:110px 0}
   font-family:var(--font-mono);font-size:10px;font-weight:600;
 }
 .pc-tags .tag{font-size:11px;padding:4px 9px}
-.pc-links{display:flex;gap:14px;border-top:1px solid var(--border);padding-top:16px;padding-bottom:6px;align-items:center}
-.pc-links a{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--text-muted);padding:7px 12px;border:1px solid transparent;border-radius:8px;transition:all .2s ease}
-.pc-links a:hover{color:var(--violet);border-color:var(--border-hover);background:rgba(214,218,226,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+/* action row: two equal buttons pinned to the card foot */
+.pc-links{display:flex;gap:10px;margin:0 20px 20px;padding:0;align-items:stretch}
+.pc-links a{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--font-mono);font-size:12px;color:var(--text-muted);
+  padding:11px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);
+  transition:color .2s ease,border-color .2s ease,background .2s ease,box-shadow .25s ease,transform .2s ease;
+}
+.pc-links a:hover{color:var(--text);border-color:var(--border-hover);background:var(--surface-3);box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.pc-links a:active{transform:scale(.97)}
 @media (max-width:900px){.project-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:620px){.project-grid{grid-template-columns:1fr}}
 
@@ -744,31 +742,6 @@ footer{
 @keyframes eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
 @media (prefers-reduced-motion:reduce){.eq-bars span{animation:none}}
 @media (max-width:480px){.music-btn{right:14px;bottom:14px;width:40px;height:40px}}
-/* ============ LANYARD SECTION ============ */
-.lanyard-section{
-  position:relative;z-index:1;
-  padding:80px 0 120px;
-  display:flex;flex-direction:column;align-items:center;
-  overflow:hidden;
-}
-.lanyard-section::before{
-  content:"";position:absolute;inset:0;z-index:0;
-  background:
-    radial-gradient(520px circle at 50% 30%, rgba(255,255,255,.05), transparent 60%),
-    radial-gradient(900px circle at 50% 100%, rgba(255,255,255,.03), transparent 70%);
-  pointer-events:none;
-}
-.lanyard-section .wrap{position:relative;z-index:1}
-#lanyard-root{
-  position:relative;z-index:1;
-  width:100%;height:78vh;max-height:720px;
-  margin-top:8px;
-}
-/* pan-y keeps vertical page scrolling alive when a finger lands on the 3D card
-   (touch-action:none would trap the scroll gesture and trap the user). */
-#lanyard-root canvas{touch-action:pan-y}
-
-@media (prefers-reduced-motion:reduce){.lanyard-section{padding:60px 0 80px}}
 
 /* ============ LOGO LOOP (bottom stack) ============ */
 .stack-loop-section{text-align:center}
@@ -898,9 +871,9 @@ footer{
   .filter-btn{flex:0 0 auto}
 
   /* ---- cards ---- */
-  .project-card{padding:18px 18px 58px}
-  .pc-chip{bottom:14px;left:14px;width:38px;height:28px}
-  .pc-barcode{bottom:17px;right:14px;height:26px}
+  .pc-title,.pc-desc,.pc-tags,.pc-stack{margin-left:16px;margin-right:16px}
+  .pc-links{margin:0 16px 16px}
+  .pc-top{padding:10px 12px}
   .ach-card{padding:16px;gap:12px}
   .hack-row{gap:10px;padding:13px 0}
   .pub-card{padding:20px 18px;gap:14px}
@@ -940,10 +913,6 @@ footer{
   .cmdk-overlay{padding-top:7vh}
   .cmdk-list{max-height:min(340px,45vh)}
   .cmdk-box{width:min(560px,94vw)}
-
-  /* ---- lanyard ---- */
-  .lanyard-section{padding:56px 0 76px}
-  #lanyard-root{height:clamp(280px,60vh,460px);height:clamp(280px,60svh,460px)}
 }
 
 @media (max-width:700px){
@@ -981,8 +950,8 @@ footer{
 @media (max-width:480px){
   .stack-tags{gap:6px}
   .tag{font-size:11.5px;padding:5px 10px}
-  .pc-links{gap:8px;padding-top:14px}
-  .pc-links a{padding:7px 9px;font-size:11.5px}
+  .pc-links{gap:8px}
+  .pc-links a{padding:10px 6px;font-size:11.5px}
   .pre-content{gap:22px;padding:18px}
   .stepper .track{width:44px}
 }
@@ -1093,7 +1062,58 @@ footer{
   .cmdk-item{transition:background .15s ease,color .15s ease,transform .15s ease}
   .cmdk-item.active{transform:translateX(2px)}
 }
-</style>
+
+/* ============================================================
+   AMBIENT WHITE GLOW
+   Soft blurred auras floating behind sections and hero pieces.
+   Pure decoration: radial white gradients + big blur, negative
+   z-index inside each section's own stacking context, monochrome
+   so it matches the theme. pointer-events:none throughout.
+   ============================================================ */
+section::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  width:min(620px,92vw);height:min(620px,92vw);border-radius:50%;
+  background:radial-gradient(circle,rgba(214,218,226,.11),rgba(214,218,226,.035) 46%,transparent 68%);
+  filter:blur(46px);
+}
+/* alternate sides down the page for rhythm */
+.hero::before{top:-160px;right:-140px}
+#about::before{top:-140px;left:-180px}
+#stack::before{top:-40px;right:-200px;width:min(480px,80vw);height:min(480px,80vw)}
+#education::before{top:6%;right:-200px}
+#publications::before{bottom:-160px;left:-180px}
+#projects::before{top:-80px;right:-190px;width:min(700px,96vw);height:min(700px,96vw)}
+#achievements::before{bottom:-140px;left:-190px}
+#github::before{top:-60px;right:-180px;width:min(520px,84vw);height:min(520px,84vw)}
+#contact::before{bottom:-180px;left:50%;transform:translateX(-50%)}
+/* hero pieces: halo behind the photo, aura behind the terminal */
+.hero-avatar::before{
+  content:"";position:absolute;inset:-16%;border-radius:50%;z-index:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(214,218,226,.17),transparent 64%);
+  filter:blur(26px);
+}
+/* wall clock halo */
+.clock-face::before{
+  content:"";position:absolute;inset:-44px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(170,178,191,.13),transparent 64%);
+  filter:blur(28px);
+}
+/* faint permanent aura on the glass terminal + project cards (hover deepens it) */
+.term{box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 70px rgba(214,218,226,.07)}
+.project-card{box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 30px rgba(214,218,226,.04)}
+.dock{box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 34px rgba(214,218,226,.09)}
+
+/* scroll-reveal fallback states (used only when the GSAP CDN is
+   unreachable — the IO script below adds .revealed on scroll) */
+.pre-reveal{opacity:0;transform:translateY(30px)}
+.revealed{opacity:1;transform:none;transition:opacity .8s ease,transform .8s cubic-bezier(.16,.7,.2,1)}
+
+@media (max-width:900px){
+  section::before{filter:blur(34px)}
+}
+@media (prefers-reduced-motion:reduce){
+  section::before,.hero-avatar::before,.clock-face::before{display:none}
+}</style>
 <body class="locked">
   <!-- ============ SPOTLIGHT ============ -->
   <div id="spotlight"></div>
@@ -1918,11 +1938,11 @@ typeTerminal();
 if(window.gsap && window.ScrollTrigger){
   gsap.registerPlugin(ScrollTrigger);
 
-  // whole-section fade/slide up, replays each time you scroll past it in either direction
+  // whole-section fade/slide up, plays once the first time you scroll to it
   document.querySelectorAll('.reveal').forEach(el=>{
     gsap.fromTo(el, {opacity:0, y:28}, {
       opacity:1, y:0, duration:.8, ease:'power3.out',
-      scrollTrigger:{ trigger:el, start:'top 85%', toggleActions:'play none none reverse' }
+      scrollTrigger:{ trigger:el, start:'top 85%', toggleActions:'play none none none' }
     });
   });
 
@@ -1930,15 +1950,28 @@ if(window.gsap && window.ScrollTrigger){
   document.querySelectorAll('.reveal-stagger').forEach(el=>{
     gsap.fromTo(el.children, {opacity:0, y:24}, {
       opacity:1, y:0, duration:.6, stagger:.08, ease:'power3.out',
-      scrollTrigger:{ trigger:el, start:'top 85%', toggleActions:'play none none reverse' }
+      scrollTrigger:{ trigger:el, start:'top 85%', toggleActions:'play none none none' }
     });
   });
 
   // hero entrance on load
   gsap.fromTo('.hero-grid > *', {opacity:0, y:22}, {opacity:1, y:0, duration:.9, stagger:.12, ease:'power3.out', delay:.15});
 } else {
-  // GSAP failed to load — make sure content is still visible
-  document.querySelectorAll('.reveal, .reveal-stagger').forEach(el=>el.style.opacity = 1);
+  // GSAP failed to load — reveal on scroll with a tiny IntersectionObserver
+  // instead, so content still appears after scrolling (never stuck hidden).
+  // Classes are added by JS only, so no-JS still shows everything.
+  const pending = document.querySelectorAll('.reveal, .reveal-stagger > *');
+  pending.forEach(el=>el.classList.add('pre-reveal'));
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('revealed'); io.unobserve(e.target); }
+      });
+    }, { threshold:.1, rootMargin:'0px 0px -6% 0px' });
+    pending.forEach(el=>io.observe(el));
+  } else {
+    pending.forEach(el=>el.classList.add('revealed'));
+  }
 }
 
 /* ============ NAV ACTIVE STATE (dock) ============ */
@@ -2105,12 +2138,6 @@ setInterval(updateWallClock, 1000);
   const dock = document.getElementById('dock');
   const items = dock.querySelectorAll('.dock-item');
 
-  items.forEach(item=>item.addEventListener('click', (e)=>{
-    if(!item.dataset.target) return;
-    e.preventDefault();
-    document.querySelector(item.dataset.target)?.scrollIntoView({behavior:'smooth'});
-  }));
-
   // Magnification writes inline pixel sizes that would stomp the compact mobile
   // dock sizing, and there is no cursor to magnify toward on touch devices.
   if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
@@ -2129,6 +2156,28 @@ setInterval(updateWallClock, 1000);
     items.forEach(item=>{ item.style.width = base + 'px'; item.style.height = base + 'px'; });
   });
 })();
+
+/* ============ SMOOTH ANCHOR SCROLL (Lenis when active, native fallback) ============ */
+function smoothTo(target){
+  const el = typeof target === 'string' ? document.querySelector(target) : target;
+  if(!el) return;
+  if(window.__lenis){
+    window.__lenis.scrollTo(el, { duration: 1.4 });
+  } else {
+    el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+  }
+}
+// One delegated handler covers the dock, hero CTAs, "back to top" and any
+// future in-page link — no per-link wiring to keep in sync.
+document.addEventListener('click', (e)=>{
+  const anchor = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
+  if(!anchor) return;
+  const hash = anchor.getAttribute('href');
+  if(!hash || hash.length < 2) return;
+  if(!document.querySelector(hash)) return;
+  e.preventDefault();
+  smoothTo(hash);
+});
 
 /* ============ COMMAND PALETTE ============ */
 const commands = [
@@ -2173,7 +2222,7 @@ function runCommand(cmd){
   } else if(cmd.external){
     window.open(cmd.target, '_blank', 'noopener');
   } else if(cmd.target){
-    document.querySelector(cmd.target)?.scrollIntoView({behavior:'smooth'});
+    smoothTo(cmd.target);
   }
   closeCmdk();
 }
@@ -2220,16 +2269,6 @@ document.addEventListener('keydown', (e)=>{
 const projShowAllBtn = document.getElementById('projShowAll');
 const projShowAllLabel = document.getElementById('projShowAllLabel');
 const projectCards = document.querySelectorAll('.project-card');
-projectCards.forEach(card => {
-  const chip = document.createElement('span');
-  chip.className = 'pc-chip';
-  chip.setAttribute('aria-hidden', 'true');
-  card.insertBefore(chip, card.lastElementChild);
-  const barcode = document.createElement('span');
-  barcode.className = 'pc-barcode';
-  barcode.setAttribute('aria-hidden', 'true');
-  card.insertBefore(barcode, card.lastElementChild);
-});
 let projExpanded = false;
 if (projShowAllBtn) {
   projectCards.forEach((card, idx) => {
@@ -2396,15 +2435,6 @@ async function renderGitHubContributions() {
 }
 renderGitHubContributions();
 </script>
-<!-- ============ LANYARD 3D ============ -->
-<section id="lanyard" class="lanyard-section">
-  <div class="lanyard-head wrap">
-    <span class="eyebrow">~/lanyard</span>
-    <h2 class="section-title">Grab the ID Card</h2>
-    <p class="section-sub">It's physics — pull the lanyard, toss the card, watch it swing. Drag it around, let go, and it'll dangle with real gravity.</p>
-  </div>
-  <div id="lanyard-root"></div>
-</section>
 
 <script type="module" src="/src/index.jsx"></script>
 </body>
