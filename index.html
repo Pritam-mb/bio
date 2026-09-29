@@ -71,17 +71,26 @@ img,svg{display:block}
 :focus-visible{outline:2px solid var(--violet);outline-offset:3px;border-radius:4px}
 
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;position:relative;z-index:1}
-.eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  font-family:var(--font-mono);font-size:12px;color:var(--violet);
-  letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;
-}
-.eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--violet);box-shadow:0 0 8px var(--violet)}
 .section-title{font-family:var(--font-display);font-weight:600;font-size:clamp(24px,3.2vw,34px);letter-spacing:-.02em;margin-bottom:12px;text-align:center;color:var(--text)}
 .section-sub{color:var(--text-muted);max-width:540px;margin-bottom:46px;font-size:14px;line-height:1.7;text-align:center;margin-left:auto;margin-right:auto}
-.eyebrow{justify-content:center}
-section{position:relative;z-index:1;padding:110px 0}
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);max-width:var(--maxw);margin:0 auto}
+section{position:relative;z-index:1;padding:132px 0}
+/* segment divider: brighter hairline bar with a glowing diamond marker */
+.divider{
+  height:2px;max-width:var(--maxw);margin:0 auto;position:relative;
+  background:linear-gradient(90deg,transparent,var(--border) 18%,var(--border-hover) 50%,var(--border) 82%,transparent);
+}
+.divider::before{
+  content:"";position:absolute;left:50%;top:50%;width:9px;height:9px;
+  transform:translate(-50%,-50%) rotate(45deg);
+  background:var(--ink);border:1px solid var(--border-hover);
+  box-shadow:0 0 12px rgba(214,218,226,.4);
+}
+.divider::after{
+  content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(440px,72%);height:64px;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(214,218,226,.09),transparent 70%);
+  filter:blur(12px);
+}
 
 /* reveal on scroll — animated by GSAP ScrollTrigger (see script). .reveal/.reveal-stagger
    are just JS hooks; GSAP sets the initial hidden state itself so content still shows
@@ -767,7 +776,6 @@ footer{
 
 /* ============ LOGO LOOP (bottom stack) ============ */
 .stack-loop-section{text-align:center}
-.stack-loop-section .eyebrow{justify-content:center}
 #logoLoopRoot{margin:0 auto;max-width:1000px;padding:8px 0 4px}
 
 /* ============ EDUCATION & EXPERIENCE PARALLEL ============ */
@@ -777,7 +785,6 @@ footer{
   gap:44px;
   align-items:start;
 }
-.edu-exp-col .eyebrow{justify-content:flex-start}
 .edu-exp-col h3{
   font-family:var(--font-display);font-weight:600;
   font-size:20px;margin-bottom:20px;display:flex;align-items:center;gap:10px;
@@ -860,7 +867,7 @@ footer{
      scroll frame — a smaller radius keeps the look but costs far less. */
   :root{--blur:12px}
   .wrap{padding:0 18px}
-  section{padding:72px 0}
+  section{padding:88px 0}
   .section-sub{margin-bottom:32px}
 
   /* ---- hero ---- */
@@ -969,7 +976,7 @@ footer{
 
 @media (max-width:360px){
   .wrap{padding:0 14px}
-  section{padding:60px 0}
+  section{padding:68px 0}
   .hero-name{font-size:clamp(30px,9.4vw,44px)}
   .hero-avatar{width:150px;height:150px}
   .hero-avatar .avatar-img{width:102px;height:102px}
@@ -1122,7 +1129,17 @@ section::before{
 }
 @media (prefers-reduced-motion:reduce){
   section::before,.hero-avatar::before,.clock-face::before{display:none}
-}</style>
+}
+
+/* ============================================================
+   ABOUT SMOKE REVEAL — every word starts dim + blurred and smokes
+   into focus one by one as scrolling drives the section. The JS
+   splits .about-body paragraphs into .smoke-w spans and scrubs
+   them (pinning the section on desktop until all words are in).
+   No-JS / no-GSAP keeps plain readable text.
+   ============================================================ */
+.smoke-w{display:inline-block;opacity:.13;filter:blur(5px)}
+@media (prefers-reduced-motion:reduce){.smoke-w{opacity:1;filter:none}}</style>
 <body class="locked">
   <!-- ============ SPOTLIGHT ============ -->
   <div id="spotlight"></div>
@@ -1251,7 +1268,6 @@ section::before{
 
 <!-- ============ ABOUT ============ -->
 <section id="about" class="wrap reveal">
-  <span class="eyebrow">~/about</span>
   <h2 class="section-title">A little about me</h2>
   <p class="section-sub">The short version — who I am, what I care about, and how I like to work.</p>
 
@@ -1279,7 +1295,6 @@ section::before{
 
 <!-- ============ TECH STACK LOGO LOOP (after introduction) ============ -->
 <section id="stack" class="wrap reveal stack-loop-section">
-  <span class="eyebrow">~/stack</span>
   <h2 class="section-title">Tech I work with</h2>
   <p class="section-sub">The tools and platforms I reach for every day.</p>
   <div id="logoLoopRoot"></div>
@@ -1289,7 +1304,6 @@ section::before{
 
 <!-- ============ EDUCATION & EXPERIENCE (parallel) ============ -->
 <section id="education" class="wrap reveal">
-  <span class="eyebrow">~/journey</span>
   <h2 class="section-title">Education &amp; Experience</h2>
   <p class="section-sub">Where the foundations were built, and a log of what I've shipped.</p>
 
@@ -1347,7 +1361,6 @@ section::before{
 
 <!-- ============ PUBLICATIONS ============ -->
 <section id="publications" class="wrap reveal">
-  <span class="eyebrow">~/publications</span>
   <h2 class="section-title">Publications &amp; Research</h2>
   <p class="section-sub">Peer-reviewed work I've co-authored.</p>
 
@@ -1370,7 +1383,6 @@ section::before{
 
 <!-- ============ PROJECTS ============ -->
 <section id="projects" class="wrap reveal">
-  <span class="eyebrow">~/projects</span>
   <h2 class="section-title">Selected projects</h2>
   <p class="section-sub">A few things I've built, broken, and rebuilt properly.</p>
 
@@ -1500,7 +1512,6 @@ section::before{
 
 <!-- ============ ACHIEVEMENTS ============ -->
 <section id="achievements" class="wrap reveal">
-  <span class="eyebrow">~/achievements</span>
   <h2 class="section-title">Achievements</h2>
   <p class="section-sub">Wins worth mentioning, on and off the keyboard.</p>
 
@@ -1624,7 +1635,6 @@ section::before{
 
 <!-- ============ GITHUB COMMIT HISTORY ============ -->
 <section id="github" class="wrap reveal gh-commit-section">
-  <span class="eyebrow">~/github</span>
   <h2 class="section-title">Commit Activity</h2>
   <p class="section-sub">A year of building, shipping, and learning &mdash; one commit at a time.</p>
 
@@ -1667,7 +1677,6 @@ section::before{
 
 <!-- ============ CONTACT ============ -->
 <section id="contact" class="wrap reveal">
-  <span class="eyebrow">~/contact</span>
   <h2 class="section-title">Let's talk</h2>
   <p class="section-sub">Open to internships, freelance work, and research collaborations.</p>
 
@@ -1980,6 +1989,59 @@ if(window.gsap && window.ScrollTrigger){
     pending.forEach(el=>el.classList.add('revealed'));
   }
 }
+
+/* ============ ABOUT SMOKE WORD REVEAL (scroll-driven, pinned on desktop) ============ */
+(function(){
+  if(!window.gsap || !window.ScrollTrigger || reducedMotion) return;
+  const aboutBody = document.querySelector('.about-body');
+  if(!aboutBody) return;
+  const paras = aboutBody.querySelectorAll('p');
+  if(!paras.length) return;
+
+  // split each paragraph into per-word spans, preserving inline markup
+  paras.forEach(p=>{
+    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node=>{
+      const frag = document.createDocumentFragment();
+      node.textContent.split(/(\s+)/).forEach(part=>{
+        if(!part) return;
+        if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(' ')); }
+        else {
+          const s = document.createElement('span');
+          s.className = 'smoke-w';
+          s.textContent = part;
+          frag.appendChild(s);
+        }
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  });
+
+  const words = aboutBody.querySelectorAll('.smoke-w');
+  if(!words.length) return;
+
+  const mm = gsap.matchMedia();
+  // desktop: lock (pin) the section until every word has smoked in
+  mm.add('(hover:hover) and (min-width:900px)', ()=>{
+    const tween = gsap.to(words, {
+      opacity:1, filter:'blur(0px)', ease:'none', stagger:.06,
+      scrollTrigger:{ trigger:'#about', start:'top top', end:'+=140%', pin:true, anticipatePin:1, scrub:.6 }
+    });
+    return ()=>{ if(tween.scrollTrigger) tween.scrollTrigger.kill(); tween.kill(); };
+  });
+  // touch / narrow: same smoke, driven by the natural scroll-through (no pin)
+  mm.add('(hover:none), (max-width:899.5px)', ()=>{
+    const tween = gsap.to(words, {
+      opacity:1, filter:'blur(0px)', ease:'none', stagger:.06,
+      scrollTrigger:{ trigger:'#about', start:'top 78%', end:'bottom 45%', scrub:.6 }
+    });
+    return ()=>{ if(tween.scrollTrigger) tween.scrollTrigger.kill(); tween.kill(); };
+  });
+
+  window.addEventListener('load', ()=>{ if(window.ScrollTrigger) window.ScrollTrigger.refresh(); });
+})();
 
 /* ============ NAV ACTIVE STATE (menu panel) ============ */
 const menuNavItems = document.querySelectorAll('.menu-item[data-target]');
