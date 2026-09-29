@@ -35,7 +35,7 @@
   --glass-surface-2:rgba(17,19,24,.72);
   --blur:18px;
 }
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden;overflow-x:clip}
 /* Lenis smooth-scroll: let the library own the wheel, never fight it with CSS */
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto !important}
@@ -688,42 +688,64 @@ footer{
 .to-top .icon{width:13px;height:13px}
 @media (max-width:620px){.status-item-hide{display:none}}
 
-/* ============ DOCK (primary navigation) ============ */
-.dock-wrap{position:fixed;left:0;right:0;bottom:16px;z-index:150;display:flex;justify-content:center;pointer-events:none;padding:0 12px}
-.dock{
-  display:flex;align-items:flex-end;gap:10px;padding:9px 14px;
+/* ============ NAV (hamburger + collapsible panel) ============ */
+.menu-btn{
+  position:fixed;right:20px;bottom:20px;z-index:160;
+  width:48px;height:48px;border-radius:50%;
   background:var(--glass-surface-2);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
-  border:1px solid var(--border-hover);border-radius:20px;
-  box-shadow:0 20px 50px rgba(0,0,0,.5);pointer-events:auto;
-  max-width:100%;
+  border:1px solid var(--border-hover);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  color:var(--text-muted);
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+  transition:border-color .2s ease,transform .2s ease,color .2s ease,box-shadow .3s ease;
 }
-.dock-item{
-  width:42px;height:42px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;
-  transition:width .15s ease,height .15s ease,background .2s ease,border-color .2s ease;
+.menu-btn:hover{border-color:var(--violet);color:var(--text);transform:translateY(-2px)}
+.menu-btn:active{transform:scale(.92)}
+.menu-btn span{display:block;width:18px;height:2px;border-radius:2px;background:currentColor;transition:transform .3s cubic-bezier(.2,.7,.2,1),opacity .2s ease}
+.menu-btn.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menu-btn.open span:nth-child(2){opacity:0}
+.menu-btn.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.nav-panel{
+  position:fixed;right:20px;bottom:80px;z-index:150;width:min(248px,calc(100vw - 40px));
+  background:var(--glass-surface-2);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
+  border:1px solid var(--border-hover);border-radius:16px;padding:8px;
+  box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 34px rgba(214,218,226,.09);
+  opacity:0;transform:translateY(14px) scale(.96);transform-origin:bottom right;
+  pointer-events:none;transition:opacity .22s ease,transform .3s cubic-bezier(.2,.7,.2,1);
 }
-.dock-item:hover{background:var(--violet-soft);border-color:var(--violet)}
-.dock-item .icon{width:18px;height:18px;color:var(--text-muted)}
-.dock-item:hover .icon{color:var(--violet)}
-.dock-item.active{background:var(--violet-soft);border-color:var(--violet)}
-.dock-item.active .icon{color:var(--violet)}
-.dock-divider{width:1px;align-self:stretch;background:var(--border);margin:0 2px;flex-shrink:0}
-.dock-tooltip{
-  position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
-  font-family:var(--font-mono);font-size:11px;color:var(--text);background:var(--surface-3);
-  border:1px solid var(--border-hover);padding:4px 9px;border-radius:6px;white-space:nowrap;
-  opacity:0;pointer-events:none;transition:opacity .15s ease;
+.nav-panel.open{opacity:1;transform:none;pointer-events:auto}
+.menu-item{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  font-family:var(--font-mono);font-size:13px;color:var(--text-muted);
+  padding:11px 12px;border-radius:10px;border:1px solid transparent;
+  opacity:0;transform:translateX(10px);
+  transition:opacity .25s ease,transform .3s cubic-bezier(.2,.7,.2,1),background .2s ease,color .2s ease,border-color .2s ease;
 }
-.dock-item:hover .dock-tooltip{opacity:1}
-@media (max-width:480px){
-  .dock{gap:6px;padding:7px 9px}
-  .dock-item{width:36px;height:36px}
-  .dock-item .icon{width:16px;height:16px}
+.nav-panel.open .menu-item{opacity:1;transform:none}
+.nav-panel.open .menu-item:nth-child(1){transition-delay:.02s}
+.nav-panel.open .menu-item:nth-child(2){transition-delay:.05s}
+.nav-panel.open .menu-item:nth-child(3){transition-delay:.08s}
+.nav-panel.open .menu-item:nth-child(4){transition-delay:.11s}
+.nav-panel.open .menu-item:nth-child(5){transition-delay:.14s}
+.nav-panel.open .menu-item:nth-child(6){transition-delay:.17s}
+.nav-panel.open .menu-item:nth-child(7){transition-delay:.2s}
+.nav-panel.open .menu-item:nth-child(8){transition-delay:.23s}
+.nav-panel.open .menu-item:nth-child(9){transition-delay:.26s}
+.nav-panel.open .menu-item:nth-child(10){transition-delay:.29s}
+.menu-item:hover{background:var(--violet-soft);color:var(--text)}
+.menu-item .icon{width:17px;height:17px;flex-shrink:0}
+.menu-item:hover .icon{color:var(--violet)}
+.menu-item.active{background:var(--violet-soft);color:var(--text);border-color:var(--border)}
+.menu-item.active .icon{color:var(--violet)}
+.menu-item kbd{
+  margin-left:auto;font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);
+  border:1px solid var(--border);padding:2px 6px;border-radius:4px;background:rgba(11,12,15,.5);
 }
+.menu-sep{height:1px;background:var(--border);margin:6px 8px}
 
 /* ============ MUSIC TOGGLE ============ */
 .music-btn{
-  position:fixed;right:20px;bottom:20px;z-index:150;
+  position:fixed;left:20px;bottom:20px;z-index:150;
   width:46px;height:46px;border-radius:50%;
   background:var(--glass-surface-2);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
   border:1px solid var(--border-hover);
@@ -741,7 +763,7 @@ footer{
 .eq-bars span:nth-child(3){height:65%;animation-delay:.4s}
 @keyframes eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
 @media (prefers-reduced-motion:reduce){.eq-bars span{animation:none}}
-@media (max-width:480px){.music-btn{right:14px;bottom:14px;width:40px;height:40px}}
+@media (max-width:480px){.music-btn{left:14px;bottom:14px;width:40px;height:40px}}
 
 /* ============ LOGO LOOP (bottom stack) ============ */
 .stack-loop-section{text-align:center}
@@ -814,7 +836,7 @@ footer{
    Everything above is tuned for pointer devices with room to
    spare. This block re-packs the page for phones: tighter
    gutters, stacked grids, scrollable data strips, and no
-   collisions between the fixed dock and the music button.
+   collisions between the fixed nav button and the music button.
    ============================================================ */
 
 /* touch devices get no cursor glow, and hover states must not stick
@@ -834,7 +856,7 @@ footer{
 }
 
 @media (max-width:900px){
-  /* Frosted layers (terminal card, dock, glass cards) re-blur on every
+  /* Frosted layers (terminal card, nav panel, glass cards) re-blur on every
      scroll frame — a smaller radius keeps the look but costs far less. */
   :root{--blur:12px}
   .wrap{padding:0 18px}
@@ -916,8 +938,10 @@ footer{
 }
 
 @media (max-width:700px){
-  /* the music button would sit on top of the dock, so lift it clear */
-  .music-btn{right:12px;bottom:80px;width:44px;height:44px}
+  /* keep the fixed corners clear of each other */
+  .music-btn{left:12px;right:auto;bottom:14px;width:44px;height:44px}
+  .menu-btn{right:12px;bottom:14px;width:46px;height:46px}
+  .nav-panel{right:12px;bottom:72px}
 }
 
 @media (max-width:620px){
@@ -929,22 +953,9 @@ footer{
 }
 
 @media (max-width:560px){
-  /* the dock is wider than a phone screen, so it becomes a swipeable strip
-     and its (clip-bound) tooltips are dropped */
-  .dock-wrap{bottom:10px;padding:0 8px}
-  .dock{
-    gap:4px;padding:7px 9px;border-radius:18px;
-    overflow-x:auto;overflow-y:hidden;
-    scrollbar-width:none;-ms-overflow-style:none;
-    -webkit-overflow-scrolling:touch;
-    scroll-snap-type:x proximity;
-  }
-  .dock::-webkit-scrollbar{display:none}
-  .dock-item{width:40px;height:40px;border-radius:11px;flex:0 0 auto;scroll-snap-align:center}
-  .dock-item .icon{width:17px;height:17px}
-  .dock-divider{display:none}
-  .dock-tooltip{display:none}
-  .music-btn{width:40px;height:40px;bottom:74px}
+  .music-btn{width:40px;height:40px}
+  .menu-btn{width:44px;height:44px}
+  .menu-item{font-size:12.5px;padding:10px 11px}
 }
 
 @media (max-width:480px){
@@ -966,8 +977,6 @@ footer{
   .hero-cta .btn{font-size:11.5px;padding:11px 14px}
   .commit-stat-lbl{font-size:8.5px;letter-spacing:0}
   .commit-stat{padding:11px 5px}
-  .dock-item{width:36px;height:36px}
-  .dock-item .icon{width:16px;height:16px}
 }
 
 /* ============================================================
@@ -997,11 +1006,8 @@ footer{
   .copy-btn{transition:color .2s ease,transform .15s ease}
   .copy-btn:active{transform:scale(.85)}
 
-  /* ---------- dock: tooltip rises in, icons press down ---------- */
-  .dock-item{transition:width .15s ease,height .15s ease,background .2s ease,border-color .2s ease,transform .15s ease}
-  .dock-item:active{transform:scale(.88)}
-  .dock-tooltip{transform:translate(-50%,5px);transition:opacity .15s ease,transform .2s cubic-bezier(.2,.7,.2,1)}
-  .dock-item:hover .dock-tooltip{opacity:1;transform:translate(-50%,0)}
+  /* ---------- menu button: tactile press ---------- */
+  .menu-btn:active{transform:scale(.9)}
 
   /* ---------- terminal card: border lights up ---------- */
   .term{transition:border-color .3s ease,box-shadow .35s ease}
@@ -1101,7 +1107,6 @@ section::before{
 /* faint permanent aura on the glass terminal + project cards (hover deepens it) */
 .term{box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 70px rgba(214,218,226,.07)}
 .project-card{box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 30px rgba(214,218,226,.04)}
-.dock{box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 34px rgba(214,218,226,.09)}
 
 /* scroll-reveal fallback states (used only when the GSAP CDN is
    unreachable — the IO script below adds .revealed on scroll) */
@@ -1109,7 +1114,11 @@ section::before{
 .revealed{opacity:1;transform:none;transition:opacity .8s ease,transform .8s cubic-bezier(.16,.7,.2,1)}
 
 @media (max-width:900px){
-  section::before{filter:blur(34px)}
+  section::before{filter:blur(34px);width:min(440px,120vw);height:min(440px,120vw)}
+  /* keep the ambient orbs mostly on-canvas so they frame the content */
+  .hero::before{right:-30vw;top:-100px}
+  #about::before,#publications::before,#achievements::before{left:-32vw}
+  #stack::before,#education::before,#projects::before,#github::before{right:-32vw}
 }
 @media (prefers-reduced-motion:reduce){
   section::before,.hero-avatar::before,.clock-face::before{display:none}
@@ -1753,21 +1762,19 @@ section::before{
   </div>
 </footer>
 
-<!-- ============ DOCK (primary navigation) ============ -->
-<div class="dock-wrap">
-  <div class="dock" id="dock">
-    <a href="#top" class="dock-item" data-target="#top"><svg class="icon"><use href="#i-terminal"/></svg><span class="dock-tooltip">Pritam Patra</span></a>
-    <button type="button" class="dock-item" id="dockCmdk" aria-label="Open command palette"><svg class="icon"><use href="#i-search"/></svg><span class="dock-tooltip">Search (⌘K)</span></button>
-    <span class="dock-divider"></span>
-    <a href="#about" class="dock-item" data-target="#about"><svg class="icon"><use href="#i-user"/></svg><span class="dock-tooltip">About</span></a>
-    <a href="#education" class="dock-item" data-target="#education"><svg class="icon"><use href="#i-file"/></svg><span class="dock-tooltip">Education</span></a>
-    <a href="#education" class="dock-item" data-target="#education"><svg class="icon"><use href="#i-briefcase"/></svg><span class="dock-tooltip">Education &amp; Experience</span></a>
-    <a href="#publications" class="dock-item" data-target="#publications"><svg class="icon"><use href="#i-flask"/></svg><span class="dock-tooltip">Publications</span></a>
-    <a href="#projects" class="dock-item" data-target="#projects"><svg class="icon"><use href="#i-code"/></svg><span class="dock-tooltip">Projects</span></a>
-    <a href="#achievements" class="dock-item" data-target="#achievements"><svg class="icon"><use href="#i-award"/></svg><span class="dock-tooltip">Achievements</span></a>
-    <a href="#contact" class="dock-item" data-target="#contact"><svg class="icon"><use href="#i-mail"/></svg><span class="dock-tooltip">Contact</span></a>
-  </div>
+<!-- ============ NAV (hamburger + collapsible panel) ============ -->
+<div class="nav-panel" id="navPanel" aria-hidden="true">
+  <button type="button" class="menu-item" id="navSearch"><svg class="icon"><use href="#i-search"/></svg>Search<kbd>⌘K</kbd></button>
+  <div class="menu-sep"></div>
+  <a href="#top" class="menu-item" data-target="#top"><svg class="icon"><use href="#i-arrow-up"/></svg>Back to top</a>
+  <a href="#about" class="menu-item" data-target="#about"><svg class="icon"><use href="#i-user"/></svg>About</a>
+  <a href="#education" class="menu-item" data-target="#education"><svg class="icon"><use href="#i-briefcase"/></svg>Education</a>
+  <a href="#publications" class="menu-item" data-target="#publications"><svg class="icon"><use href="#i-flask"/></svg>Publications</a>
+  <a href="#projects" class="menu-item" data-target="#projects"><svg class="icon"><use href="#i-code"/></svg>Projects</a>
+  <a href="#achievements" class="menu-item" data-target="#achievements"><svg class="icon"><use href="#i-award"/></svg>Achievements</a>
+  <a href="#contact" class="menu-item" data-target="#contact"><svg class="icon"><use href="#i-mail"/></svg>Contact</a>
 </div>
+<button type="button" class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false" aria-controls="navPanel"><span></span><span></span><span></span></button>
 
 <!-- ============ MUSIC TOGGLE ============ -->
 <!-- No track is bundled here — I can't ship the actual Avengers theme (it's Marvel/Disney's
@@ -1974,16 +1981,16 @@ if(window.gsap && window.ScrollTrigger){
   }
 }
 
-/* ============ NAV ACTIVE STATE (dock) ============ */
-const dockNavItems = document.querySelectorAll('.dock-item[data-target]');
+/* ============ NAV ACTIVE STATE (menu panel) ============ */
+const menuNavItems = document.querySelectorAll('.menu-item[data-target]');
 const sections = ['about','education','publications','projects','achievements','github','contact']
   .map(id=>document.getElementById(id)).filter(Boolean);
 const navObs = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{
-    const item = document.querySelector(`.dock-item[data-target="#${e.target.id}"]`);
+    const item = document.querySelector(`.menu-item[data-target="#${e.target.id}"]`);
     if(!item) return;
     if(e.isIntersecting){
-      dockNavItems.forEach(l=>l.classList.remove('active'));
+      menuNavItems.forEach(l=>l.classList.remove('active'));
       item.classList.add('active');
     }
   });
@@ -2133,28 +2140,34 @@ setInterval(updateWallClock, 1000);
   run(0);
 })();
 
-/* ============ DOCK MAGNIFICATION ============ */
+/* ============ NAV PANEL (hamburger toggle) ============ */
 (function(){
-  const dock = document.getElementById('dock');
-  const items = dock.querySelectorAll('.dock-item');
-
-  // Magnification writes inline pixel sizes that would stomp the compact mobile
-  // dock sizing, and there is no cursor to magnify toward on touch devices.
-  if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-  const base = 42, max = 62, range = 110;
-  dock.addEventListener('mousemove', (e)=>{
-    items.forEach(item=>{
-      const r = item.getBoundingClientRect();
-      const center = r.left + r.width/2;
-      const dist = Math.abs(e.clientX - center);
-      const size = Math.max(base, max - (dist/range)*(max-base));
-      item.style.width = size + 'px';
-      item.style.height = size + 'px';
-    });
+  const btn = document.getElementById('menuBtn');
+  const panel = document.getElementById('navPanel');
+  const searchBtn = document.getElementById('navSearch');
+  if(!btn || !panel) return;
+  const setOpen = (open)=>{
+    btn.classList.toggle('open', open);
+    panel.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    panel.setAttribute('aria-hidden', String(!open));
+  };
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    setOpen(!panel.classList.contains('open'));
   });
-  dock.addEventListener('mouseleave', ()=>{
-    items.forEach(item=>{ item.style.width = base + 'px'; item.style.height = base + 'px'; });
+  // navigating closes the panel (the delegated anchor handler smooth-scrolls)
+  panel.addEventListener('click', (e)=>{
+    if(e.target.closest('a')) setOpen(false);
   });
+  document.addEventListener('click', (e)=>{
+    if(panel.classList.contains('open') && !e.target.closest('#navPanel') && !e.target.closest('#menuBtn')) setOpen(false);
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && panel.classList.contains('open')) setOpen(false);
+  });
+  if(searchBtn) searchBtn.addEventListener('click', ()=>{ setOpen(false); openCmdk(); });
 })();
 
 /* ============ SMOOTH ANCHOR SCROLL (Lenis when active, native fallback) ============ */
@@ -2167,7 +2180,7 @@ function smoothTo(target){
     el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
   }
 }
-// One delegated handler covers the dock, hero CTAs, "back to top" and any
+// One delegated handler covers the menu panel, hero CTAs, "back to top" and any
 // future in-page link — no per-link wiring to keep in sync.
 document.addEventListener('click', (e)=>{
   const anchor = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
@@ -2196,7 +2209,6 @@ const commands = [
 const cmdkOverlay = document.getElementById('cmdkOverlay');
 const cmdkInput = document.getElementById('cmdkInput');
 const cmdkList = document.getElementById('cmdkList');
-const cmdkTrigger = document.getElementById('dockCmdk');
 let activeIndex = 0;
 let filteredCommands = commands;
 
@@ -2239,7 +2251,6 @@ function closeCmdk(){
   cmdkOverlay.classList.remove('open');
 }
 
-cmdkTrigger.addEventListener('click', openCmdk);
 cmdkOverlay.addEventListener('click', (e)=>{ if(e.target === cmdkOverlay) closeCmdk(); });
 
 cmdkInput.addEventListener('input', ()=>{

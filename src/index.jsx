@@ -119,7 +119,7 @@ if (heroAvatarRingEl) {
   heroAvatarRingRoot.render(
     <React.StrictMode>
       <CircularText
-        text="SOFTWARE ENGINEER • ML RESEARCHER • "
+        text="AI FULL STACK DEVELOPER • SOFTWARE ENGINEER • "
         spinDuration={22}
         onHover="slowDown"
       />
