@@ -1000,6 +1000,99 @@ footer{
   .dock-item{width:36px;height:36px}
   .dock-item .icon{width:16px;height:16px}
 }
+
+/* ============================================================
+   HOVER / TRANSITION POLISH
+   Pointer-only delight layer. Every rule animates cheap
+   properties (transform, opacity, color, border-color, shadow)
+   and lives behind (hover:hover), so touch devices never inherit
+   stuck "hover" states after a tap. Reduced-motion users are
+   covered by the global reset at the top of this stylesheet.
+   ============================================================ */
+@media (hover:hover){
+
+  /* ---------- buttons: shine sweep + tactile press ---------- */
+  .btn{position:relative;overflow:hidden}
+  .btn-primary::after{
+    content:"";position:absolute;top:0;left:0;width:45%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+    transform:translateX(-160%) skewX(-18deg);
+    transition:transform .55s ease;pointer-events:none;
+  }
+  .btn-primary:hover::after{transform:translateX(360%) skewX(-18deg)}
+  .btn:active{transform:translateY(0) scale(.97)}
+  .btn-ghost:hover{box-shadow:0 8px 22px rgba(0,0,0,.45),0 0 0 1px var(--violet-soft)}
+  .filter-btn:hover{transform:translateY(-1px)}
+  .filter-btn:active{transform:scale(.94)}
+  .social-btn:active{transform:translateY(0) scale(.9)}
+  .copy-btn{transition:color .2s ease,transform .15s ease}
+  .copy-btn:active{transform:scale(.85)}
+
+  /* ---------- dock: tooltip rises in, icons press down ---------- */
+  .dock-item{transition:width .15s ease,height .15s ease,background .2s ease,border-color .2s ease,transform .15s ease}
+  .dock-item:active{transform:scale(.88)}
+  .dock-tooltip{transform:translate(-50%,5px);transition:opacity .15s ease,transform .2s cubic-bezier(.2,.7,.2,1)}
+  .dock-item:hover .dock-tooltip{opacity:1;transform:translate(-50%,0)}
+
+  /* ---------- terminal card: border lights up ---------- */
+  .term{transition:border-color .3s ease,box-shadow .35s ease}
+  .term:hover{border-color:var(--border-hover);box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 44px rgba(214,218,226,.07)}
+
+  /* ---------- timeline: dot ignites, role brightens ---------- */
+  .tl-dot{transition:transform .25s cubic-bezier(.2,.7,.2,1),background .25s ease,box-shadow .25s ease}
+  .tl-item:hover .tl-dot{transform:scale(1.3);background:var(--violet);box-shadow:0 0 0 4px var(--ink),0 0 14px var(--violet)}
+  .tl-role{transition:color .2s ease}
+  .tl-item:hover .tl-role{color:#fff}
+
+  /* ---------- tag chips ---------- */
+  .tag{transition:border-color .2s ease,color .2s ease,background .2s ease,transform .2s ease}
+  .tag:hover{border-color:var(--border-hover);color:var(--text);background:var(--surface-2);transform:translateY(-1px)}
+
+  /* ---------- social buttons: icons pop ---------- */
+  .social-btn .icon{transition:transform .22s cubic-bezier(.2,.7,.2,1)}
+  .social-btn:hover .icon{transform:translateY(-1px) scale(1.1)}
+  .social-brand .icon{transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+  .social-brand:hover .icon{transform:scale(1.14)}
+  .social-brand{transition:all .25s ease,box-shadow .3s ease}
+  .social-brand.gh:hover{box-shadow:0 12px 30px rgba(0,0,0,.4),0 0 22px rgba(139,148,158,.18)}
+  .social-brand.li:hover{box-shadow:0 12px 30px rgba(0,0,0,.4),0 0 22px rgba(75,139,191,.22)}
+
+  /* ---------- music button: glows while playing ---------- */
+  .music-btn{transition:border-color .2s ease,transform .2s ease,box-shadow .3s ease}
+  .music-btn.playing{border-color:var(--violet);box-shadow:0 0 20px rgba(214,218,226,.28)}
+
+  /* ---------- hero avatar: photo breathes ---------- */
+  .hero-avatar .avatar-img{transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .3s ease,border-color .3s ease}
+  .hero-avatar:hover .avatar-img{transform:scale(1.06);border-color:var(--violet);box-shadow:0 0 0 1px var(--surface),0 18px 40px rgba(0,0,0,.55),0 0 34px rgba(214,218,226,.22)}
+
+  /* ---------- hack rows: slide + badge pops ---------- */
+  .hack-row{transition:transform .25s cubic-bezier(.2,.7,.2,1),background .2s ease;border-radius:10px}
+  .hack-row:hover{transform:translateX(5px);background:rgba(255,255,255,.025)}
+  .hack-icon{transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+  .hack-row:hover .hack-icon{transform:scale(1.12) rotate(-6deg)}
+  .hack-result{transition:box-shadow .25s ease}
+  .hack-row:hover .hack-result{box-shadow:0 0 12px rgba(214,218,226,.25)}
+
+  /* ---------- achievement + publication icons ---------- */
+  .ach-icon,.pub-icon{transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+  .ach-card:hover .ach-icon{transform:scale(1.1) rotate(-5deg)}
+  .pub-card:hover .pub-icon{transform:scale(1.1) rotate(5deg)}
+
+  /* ---------- project links: arrow nudges out ---------- */
+  .pc-links a .icon{transition:transform .2s ease}
+  .pc-links a:hover .icon{transform:translate(2px,-2px)}
+  .pc-lang{transition:border-color .25s ease}
+  .project-card:hover .pc-lang{border-color:var(--border-hover)}
+
+  /* ---------- footer status bar ---------- */
+  .to-top{transition:color .2s ease,transform .2s ease}
+  .to-top:hover{transform:translateY(-2px)}
+  .status-dot{animation:blink 2.4s ease-in-out infinite}
+
+  /* ---------- command palette ---------- */
+  .cmdk-item{transition:background .15s ease,color .15s ease,transform .15s ease}
+  .cmdk-item.active{transform:translateX(2px)}
+}
 </style>
 <body class="locked">
   <!-- ============ SPOTLIGHT ============ -->
