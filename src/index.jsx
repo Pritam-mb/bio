@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 import DriftWall from './DriftWall';
 import Shuffle from './Shuffle';
 import CircularText from './CircularText';
@@ -10,35 +11,64 @@ import './Shuffle.css';
 import './CircularText.css';
 import './LogoLoop.css';
 
-// Buttery inertial scrolling (Lenis). Desktop pointers only — touch devices
-// keep native momentum scrolling and reduced-motion users opt out entirely.
-// Anchor navigation elsewhere on the page routes through `window.__lenis`
-// when it exists, otherwise falls back to native smooth scrolling.
-const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+// Buttery smooth inertial scrolling (Lenis 1.3+).
+// Universal support across mice, trackpads, and pointers, with reduced-motion respected.
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-if (finePointer && !prefersReduced) {
-  const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+if (!prefersReduced) {
+  const lenis = new Lenis({
+    duration: 1.25,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    orientation: 'vertical',
+    gestureOrientation: 'vertical',
+    smoothWheel: true,
+    wheelMultiplier: 1.0,
+    touchMultiplier: 1.5,
+    infinite: false,
+    autoRaf: false,
+  });
   window.__lenis = lenis;
 
-  // Drive Lenis from GSAP's ticker when the CDN is present so ScrollTrigger
-  // stays in sync; otherwise run a private rAF loop after page load.
+  // Integrate with GSAP ticker & ScrollTrigger
   let wired = false;
   const wireGsap = () => {
-    if (wired || !window.gsap) return;
+    if (wired || !window.gsap) return false;
     wired = true;
-    if (window.ScrollTrigger) lenis.on('scroll', window.ScrollTrigger.update);
-    window.gsap.ticker.add((time) => { lenis.raf(time * 1000); });
-    window.gsap.ticker.lagSmoothing(0);
-  };
-  wireGsap();
-  window.addEventListener('load', () => {
-    wireGsap();
-    if (!wired) {
-      const loop = (time) => { lenis.raf(time); requestAnimationFrame(loop); };
-      requestAnimationFrame(loop);
+    if (window.ScrollTrigger) {
+      lenis.on('scroll', window.ScrollTrigger.update);
     }
+    window.gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    window.gsap.ticker.lagSmoothing(0);
+    return true;
+  };
+
+  if (!wireGsap()) {
+    const loop = (time) => {
+      lenis.raf(time);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+
+    window.addEventListener('load', () => {
+      wireGsap();
+      lenis.resize();
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    lenis.resize();
   });
 }
+
+// Interactive spotlight tracking on cards (--mx, --my)
+document.addEventListener('pointermove', (e) => {
+  const card = e.target && e.target.closest ? e.target.closest('.project-card, .pub-card, .ach-card, .about-card, .term') : null;
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  card.style.setProperty('--mx', `${(e.clientX - rect.left).toFixed(1)}px`);
+  card.style.setProperty('--my', `${(e.clientY - rect.top).toFixed(1)}px`);
+});
 
 // 1. Create DriftWall Root dynamically and prepend to body to fix layout shifting
 const driftWallContainer = document.createElement('div');

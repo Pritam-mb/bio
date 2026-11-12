@@ -1,0 +1,686 @@
+/* ============================================================
+   THEME LAYER 2 — texture, aurora, segment breaks, modern cards
+   Loaded after the inline <style> in index.html, so every rule
+   here wins on equal specificity.
+   ============================================================ */
+
+:root {
+  /* spectrum accents — used sparingly for depth, never for body text */
+  --a-violet: #7e6cff;
+  --a-cyan: #2ec6d6;
+  --a-rose: #e0619b;
+  --a-amber: #f0a63c;
+
+  /* section rhythm */
+  --section-y: clamp(76px, 8.5vw, 116px);
+  --gutter: 28px;
+
+  /* texture */
+  --grain-opacity: 0.045;
+  --noise-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   TEXTURE — film grain + soft aurora bloom
+   ============================================================ */
+
+/* Fixed grain. Static (no animation) so it never forces a full-screen
+   repaint while scrolling; a moving grain layer is the classic cause
+   of scroll jank on mid-range machines. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 560;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: var(--noise-svg);
+  background-size: 220px 220px;
+}
+
+/* Aurora: pre-blurred radial gradients (no filter:blur, so the layers
+   stay on the GPU and animate cheaply). Sits behind the drift wall. */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  overflow: hidden;
+}
+.aurora span {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  will-change: transform;
+}
+.aurora span:nth-child(1) {
+  width: 58vw;
+  height: 58vw;
+  left: -14vw;
+  top: -18vw;
+  background: radial-gradient(circle, rgba(126, 108, 255, 0.20), rgba(126, 108, 255, 0) 68%);
+  animation: aurora-drift-a 34s ease-in-out infinite alternate;
+}
+.aurora span:nth-child(2) {
+  width: 52vw;
+  height: 52vw;
+  right: -16vw;
+  top: 22vh;
+  background: radial-gradient(circle, rgba(46, 198, 214, 0.14), rgba(46, 198, 214, 0) 68%);
+  animation: aurora-drift-b 42s ease-in-out infinite alternate;
+}
+.aurora span:nth-child(3) {
+  width: 46vw;
+  height: 46vw;
+  left: 22vw;
+  bottom: -20vw;
+  background: radial-gradient(circle, rgba(224, 97, 155, 0.10), rgba(224, 97, 155, 0) 68%);
+  animation: aurora-drift-c 38s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(6vw, 5vh, 0) scale(1.12); }
+}
+@keyframes aurora-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.06); }
+  to { transform: translate3d(-7vw, 6vh, 0) scale(0.94); }
+}
+@keyframes aurora-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(0.96); }
+  to { transform: translate3d(5vw, -6vh, 0) scale(1.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora span { animation: none; }
+}
+
+/* ============================================================
+   SEGMENT BREAK — replaces the bare hairline that used to float
+   in a 264px void between sections. Now it is a designed joint:
+   two rails that stop short of a centered node.
+   ============================================================ */
+
+section {
+  padding: var(--section-y) 0;
+  scroll-margin-top: 28px;
+}
+
+.divider {
+  position: relative;
+  height: 40px;
+  max-width: calc(var(--maxw) - (var(--gutter) * 2));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--border) 6%,
+    var(--border-hover) 46%,
+    var(--border-hover) 54%,
+    var(--border) 94%,
+    transparent 100%
+  );
+  opacity: 0.85;
+}
+.divider::after {
+  content: "";
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 1px solid var(--border-hover);
+  box-shadow:
+    0 0 0 5px rgba(4, 4, 5, 0.9),
+    0 0 22px rgba(214, 218, 226, 0.16),
+    inset 0 0 10px rgba(214, 218, 226, 0.08);
+}
+@media (max-width: 900px) {
+  .divider { max-width: calc(var(--maxw) - 36px); height: 32px; }
+  .divider::after { width: 26px; height: 26px; }
+}
+
+/* ============================================================
+   SPOTLIGHT — cursor-tracked light on cards
+   --mx / --my are written by the pointer tracker in index.jsx.
+   ============================================================ */
+.project-card,
+.about-card,
+.pub-card,
+.ach-card {
+  position: relative;
+  isolation: isolate;
+}
+.project-card::after,
+.about-card::after,
+.pub-card::after,
+.ach-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    340px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(214, 218, 226, 0.12),
+    transparent 64%
+  );
+}
+.project-card:hover::after,
+.project-card:focus-within::after,
+.about-card:hover::after,
+.pub-card:hover::after,
+.ach-card:hover::after {
+  opacity: 1;
+}
+
+/* ============================================================
+   PROJECT CARDS — editorial two-up grid with a full-width
+   feature card, gradient hairline border and floating preview.
+   ============================================================ */
+
+.project-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  perspective: none;
+}
+
+/* --- feature card (first project) spans the full row --- */
+.project-grid > .project-card:first-child {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  grid-template-areas:
+    "media head"
+    "media title"
+    "media desc"
+    "media stack"
+    "media links";
+  align-content: stretch;
+}
+.project-grid > .project-card:first-child .pc-thumb-wrap {
+  grid-area: media;
+  margin: 0;
+  border-bottom: none;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  min-height: 320px;
+}
+.project-grid > .project-card:first-child .pc-top { grid-area: head; }
+.project-grid > .project-card:first-child .pc-title { grid-area: title; }
+.project-grid > .project-card:first-child .pc-desc { grid-area: desc; }
+.project-grid > .project-card:first-child .pc-stack { grid-area: stack; }
+.project-grid > .project-card:first-child .pc-links { grid-area: links; }
+
+/* --- card shell --- */
+.project-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--surface-2), var(--surface-2)) padding-box,
+    linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02) 38%, rgba(126, 108, 255, 0.28) 100%) border-box;
+  box-shadow:
+    0 18px 40px -22px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 0.55),
+    box-shadow 0.45s ease;
+}
+.project-card:hover {
+  transform: translateY(-6px);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--surface-2), var(--surface-2)) padding-box,
+    linear-gradient(145deg, rgba(214, 218, 226, 0.5), rgba(126, 108, 255, 0.55) 52%, rgba(46, 198, 214, 0.35) 100%) border-box;
+  box-shadow:
+    0 34px 70px -30px rgba(0, 0, 0, 0.95),
+    0 0 46px -12px rgba(126, 108, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* spotlight sweep inside the card */
+.project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    380px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(214, 218, 226, 0.11),
+    transparent 65%
+  );
+}
+.project-card:hover::after {
+  opacity: 1;
+}
+
+/* old glare sweep is superseded by the spotlight */
+.project-card::before {
+  content: none;
+}
+
+/* --- header rail --- */
+.pc-top {
+  order: -1;
+  margin: 0;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent);
+}
+.project-grid > .project-card:first-child .pc-top {
+  order: 0;
+  padding: 20px 22px 0;
+  border-bottom: none;
+}
+
+/* --- preview --- */
+.pc-thumb-wrap {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--ink);
+}
+.pc-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  filter: grayscale(0.55) contrast(1.06) brightness(0.82);
+  transform: scale(1.02);
+  transition:
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.project-card:hover .pc-thumb {
+  transform: scale(1.08);
+  filter: grayscale(0) contrast(1.02) brightness(1);
+}
+/* soft inner frame so the preview feels inset rather than pasted on */
+.pc-thumb-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 0%, transparent 40%, rgba(4, 4, 5, 0.55) 100%),
+    linear-gradient(180deg, transparent 60%, rgba(4, 4, 5, 0.5));
+}
+.project-grid > .project-card:first-child .pc-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-position: top center;
+}
+
+/* --- body copy --- */
+.pc-title,
+.pc-desc,
+.pc-tags,
+.pc-stack {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.project-grid > .project-card:first-child .pc-title,
+.project-grid > .project-card:first-child .pc-desc,
+.project-grid > .project-card:first-child .pc-tags,
+.project-grid > .project-card:first-child .pc-stack {
+  margin-left: 22px;
+  margin-right: 22px;
+}
+.pc-top + .pc-title {
+  margin-top: 18px;
+}
+.pc-title {
+  margin-top: 18px;
+  font-size: clamp(19px, 2vw, 23px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  position: relative;
+  transition: color 0.3s ease;
+}
+.project-grid > .project-card:first-child .pc-title {
+  font-size: clamp(24px, 2.6vw, 32px);
+  margin-top: 0;
+}
+.pc-title::before {
+  counter-increment: pc;
+  content: "PROJECT " counter(pc, decimal-leading-zero);
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  margin-bottom: 10px;
+  transition: color 0.3s ease;
+}
+.project-card:hover .pc-title::before {
+  color: var(--a-violet);
+}
+.pc-desc {
+  font-size: 13.5px;
+  line-height: 1.68;
+  color: var(--text-muted);
+}
+
+/* --- stack chips --- */
+.pc-stack {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 18px;
+}
+.stack-circle {
+  margin-left: -8px;
+  width: 32px;
+  height: 32px;
+  border-width: 2px;
+  border-color: var(--surface-2);
+  transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.stack-circle:hover {
+  transform: translateY(-6px) scale(1.14);
+  z-index: 5;
+}
+.stack-more {
+  background: linear-gradient(135deg, var(--a-violet), #5f4ee0);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(126, 108, 255, 0.35);
+}
+
+/* --- actions --- */
+.pc-links {
+  display: flex;
+  gap: 10px;
+  margin: 0 20px 20px;
+  align-self: end;
+}
+.project-grid > .project-card:first-child .pc-links {
+  margin: 0 22px 22px;
+}
+.pc-links a {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.025);
+  padding: 12px 14px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  position: relative;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease,
+    background 0.3s ease,
+    transform 0.25s ease,
+    box-shadow 0.3s ease;
+}
+.pc-links a:hover {
+  color: #fff;
+  border-color: rgba(214, 218, 226, 0.35);
+  background: linear-gradient(120deg, rgba(126, 108, 255, 0.3), rgba(46, 198, 214, 0.18));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -12px rgba(126, 108, 255, 0.5);
+}
+.pc-links a .icon {
+  transition: transform 0.25s ease;
+}
+.pc-links a:hover .icon {
+  transform: translate(2px, -2px);
+}
+
+/* ============================================================
+   ABOUT / PUBLICATION / ACHIEVEMENT CARDS — same spotlight
+   language, lighter touch.
+   ============================================================ */
+
+.about-card,
+.pub-card,
+.ach-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 18px;
+  border-color: var(--border);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.035), transparent 42%), var(--glass-surface);
+  box-shadow: 0 16px 38px -26px rgba(0, 0, 0, 0.9);
+  transition:
+    transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 0.55),
+    border-color 0.3s ease,
+    box-shadow 0.4s ease;
+}
+.about-card:hover,
+.pub-card:hover,
+.ach-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(214, 218, 226, 0.28);
+  box-shadow:
+    0 30px 60px -32px rgba(0, 0, 0, 0.95),
+    0 0 34px -14px rgba(126, 108, 255, 0.4);
+}
+.about-card::after,
+.pub-card::after,
+.ach-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    300px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(214, 218, 226, 0.12),
+    transparent 64%
+  );
+}
+.about-card:hover::after,
+.pub-card:hover::after,
+.ach-card:hover::after {
+  opacity: 1;
+}
+.pub-icon,
+.ach-icon {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(126, 108, 255, 0.16), rgba(46, 198, 214, 0.08));
+}
+
+/* ============================================================
+   EDUCATION / EXPERIENCE — two segments of equal visual weight
+   ============================================================ */
+
+.edu-exp-grid {
+  gap: 24px;
+  align-items: stretch;
+}
+.edu-exp-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 24px 28px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 38%),
+    rgba(9, 10, 13, 0.6);
+  box-shadow: 0 18px 44px -30px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+.edu-exp-col::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--a-violet), transparent 70%);
+  opacity: 0.75;
+}
+.edu-exp-col:nth-child(2)::before {
+  background: linear-gradient(180deg, var(--a-cyan), transparent 70%);
+}
+.edu-exp-col h3 {
+  font-size: 19px;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.edu-exp-col h3::before {
+  width: 6px;
+  height: 18px;
+  border-radius: 3px;
+}
+.edu-exp-col:nth-child(1) h3::before {
+  background: var(--a-violet);
+  box-shadow: 0 0 12px rgba(126, 108, 255, 0.6);
+}
+.edu-exp-col:nth-child(2) h3::before {
+  background: var(--a-cyan);
+  box-shadow: 0 0 12px rgba(46, 198, 214, 0.55);
+}
+/* the experience column has a single entry — let it breathe instead of
+   leaving a tall void under it */
+.edu-exp-col .timeline {
+  flex: 1;
+}
+.edu-exp-col .tl-item:last-child {
+  padding-bottom: 0;
+}
+.edu-exp-col:nth-child(2) .tl-item {
+  padding-bottom: 0;
+}
+
+/* ============================================================
+   HERO — tighter, more deliberate header stack
+   ============================================================ */
+
+.hero {
+  padding: 118px 0 132px;
+}
+.hero-grid {
+  gap: 60px;
+}
+.hero-head {
+  gap: 30px;
+}
+.hero-name {
+  font-size: clamp(40px, 6.2vw, 72px);
+}
+.hero-tagline {
+  font-size: 17.5px;
+  max-width: 540px;
+}
+.hero-avatar .avatar-img {
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px var(--surface),
+    0 22px 50px rgba(0, 0, 0, 0.6),
+    0 0 44px rgba(126, 108, 255, 0.22);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+  :root {
+    --gutter: 18px;
+  }
+  .project-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .project-grid > .project-card:first-child {
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "media"
+      "head"
+      "title"
+      "desc"
+      "stack"
+      "links";
+  }
+  .project-grid > .project-card:first-child .pc-thumb-wrap {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    min-height: 0;
+  }
+  .project-grid > .project-card:first-child .pc-thumb {
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
+  .project-grid > .project-card:first-child .pc-top {
+    padding: 14px 18px;
+  }
+  .project-grid > .project-card:first-child .pc-title,
+  .project-grid > .project-card:first-child .pc-desc,
+  .project-grid > .project-card:first-child .pc-tags,
+  .project-grid > .project-card:first-child .pc-stack {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+  .project-grid > .project-card:first-child .pc-links {
+    margin: 0 18px 18px;
+  }
+  .edu-exp-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .hero {
+    padding: 92px 0 96px;
+  }
+}
+
+@media (max-width: 620px) {
+  .pc-title,
+  .pc-desc,
+  .pc-tags,
+  .pc-stack {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .pc-links {
+    margin: 0 16px 16px;
+  }
+  .edu-exp-col {
+    padding: 20px 16px 22px;
+  }
+}
+
+@media (hover: none) {
+  .project-card:hover,
+  .about-card:hover,
+  .pub-card:hover,
+  .ach-card:hover {
+    transform: none;
+  }
+  .project-card::after,
+  .about-card::after,
+  .pub-card::after,
+  .ach-card::after {
+    opacity: 0 !important;
+  }
+}
